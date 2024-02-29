@@ -1,0 +1,10 @@
+import RPi.GPIO as GPIO			
+from mfrc522 import SimpleMFRC522		#importo la llibreria
+
+reader = SimpleMFRC522()			# inicialitzo
+
+try:
+        id, text = reader.read()		# llegeix el número
+        print(id)		# imprimeix per pantalla
+finally:
+        GPIO.cleanup()
