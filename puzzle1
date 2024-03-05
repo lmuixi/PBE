@@ -5,13 +5,13 @@ class Rdif:
 	def read_uid(self):
 		reader = SimpleMFRC522()		#inicialitzo el lector
 		id = reader.read_id()	#llegeix l'id de la targeta/clauer
-		#passa el número a hexadecimal i escriu les lletres en majúscula
-                uid = hex(id).upper()	
+		#passa el número a hexadecimal, escriu les lletres en majúscula i treu el prefix '0x'
+		uid = hex(id).lstrip("0x").upper()
+		uid = uid[:8]   #hem quedo amb els primers 8 dígits
 		return uid
-
 if __name__ == "__main__":
-        try: 
-                rf = Rfid()
-                print(rf.read_uid())	#imprimeix per pantalla l'uid
-        finally:
-                GPIO.cleanup() 
+	try: 
+		rf = Rfid()
+		print(rf.read_uid())	#imprimeix per pantalla l'uid
+	finally:
+		GPIO.cleanup() 
