@@ -1,0 +1,69 @@
+import threading
+import gi
+from Puzzle1 import Rdif			#importem el puzzle1 per llegir les targetes
+
+gi.require_version("Gtk", "3.0")
+from gi.repository import Gtk, Gdk
+
+# inicialitzo GTK
+Gtk.init()
+
+class Window(Gtk.Window):
+    def __init__(self):
+        # Creo la finestra
+        Gtk.Window.__init__(self, title="Puzzle 2")
+        self.set_default_size(400, 100)
+        self.set_border_width(5)
+        self.set_position(True)
+		
+		# Crido el metode del puzzle 1
+        self.rf = Rdif()
+
+		# Creo la caixa (box) on van el boto i l'ID de la targeta
+        self.box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=5)
+        self.add(self.box)
+        self.box.set_homogeneous(False)
+
+		# Creo la caixa que canvia de color quan surt l'ID i l'inicialitzo a blau
+        self.eventbox = Gtk.EventBox()
+        self.eventbox.override_background_color(Gtk.StateFlags.NORMAL,Gdk.RGBA(0, 0, 8, 1))
+
+        self.label = Gtk.Label('<span foreground="white"> Apropeu la targeta al lector </span>')
+        self.label.set_use_markup(True)
+        self.eventbox.add(self.label)
+
+        # Creo el boto
+        self.button = Gtk.Button(label="Clear")
+        self.button.connect("clicked", self.clicked)
+        self.box.pack_start(self.eventbox, True, True, 0)
+        self.box.pack_start(self.button, True, True, 0)
+
+	# Funcio que es crida quan fem click al boto
+    def clicked(self, widget):
+        # Torna a la pagina anterior
+        self.label.set_label('<span foreground="white">   Apropeu la targeta al lector </span>')
+        self.eventbox.override_background_color(Gtk.StateFlags.NORMAL, Gdk.RGBA(0, 0, 8, 1))
+
+        if threading.active_count() == 1:
+            thread = threading.Thread(target=self.scan, daemon=True)
+            thread.start()
+
+    # Funcio que escaneja la targeta
+    def scan(self):
+        self.uid = self.rf.read_uid()
+		# Fiquem la caixa a vermell
+        self.eventbox.override_background_color(Gtk.StateFlags.NORMAL, Gdk.RGBA(8, 0, 0, 1))
+        self.label.set_label('<span foreground="white">uid: ' + self.uid + '</span>')
+
+def reader_main():
+    finestra = Window()
+    finestra.connect("destroy", Gtk.main_quit)
+    finestra.show_all()
+
+    thread = threading.Thread(target=finestra.scan, daemon=True)
+    thread.start()
+
+if __name__ == "__main__":
+    reader_main()
+    Gtk.main()
+
