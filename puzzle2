@@ -3,7 +3,7 @@ import gi
 from Puzzle1 import Rdif			#importem el puzzle1 per llegir les targetes
 
 gi.require_version("Gtk", "3.0")
-from gi.repository import Gtk, Gdk
+from gi.repository import Gtk, Gdk, GLib
 
 # inicialitzo GTK
 Gtk.init()
@@ -16,15 +16,15 @@ class Window(Gtk.Window):
         self.set_border_width(5)
         self.set_position(True)
 		
-	# Crido el metode del puzzle 1
+		# Crido el metode del puzzle 1
         self.rf = Rdif()
 
-	# Creo la caixa (box) on van el boto i l'ID de la targeta
+		# Creo la caixa (box) on van el boto i l'ID de la targeta
         self.box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=5)
         self.add(self.box)
         self.box.set_homogeneous(False)
 
-	# Creo la caixa que canvia de color quan surt l'ID i l'inicialitzo a blau
+		# Creo la caixa que canvia de color quan surt l'ID i l'inicialitzo a blau
         self.eventbox = Gtk.EventBox()
         self.eventbox.override_background_color(Gtk.StateFlags.NORMAL,Gdk.RGBA(0, 0, 8, 1))
 
@@ -51,6 +51,10 @@ class Window(Gtk.Window):
     # Funcio que escaneja la targeta
     def scan(self):
         self.uid = self.rf.read_uid()
+        # delego l'actualitzacio de la interficie grafica
+        GLib.idle_add(self.actualitzacio_interficie);
+        
+    def actualitzacio_interficie(self):
 		# Fiquem la caixa a vermell
         self.eventbox.override_background_color(Gtk.StateFlags.NORMAL, Gdk.RGBA(8, 0, 0, 1))
         self.label.set_label('<span foreground="white">uid: ' + self.uid + '</span>')
